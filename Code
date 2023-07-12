@@ -1,0 +1,22 @@
+# Check if Adobe Flash Player is installed
+$flashPlayerInstalled = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*Adobe Flash Player*" }
+
+if ($flashPlayerInstalled) {
+    Write-Host "Adobe Flash Player is installed."
+
+    # Uninstall Adobe Flash Player
+    Write-Host "Uninstalling Adobe Flash Player..."
+    $uninstallString = $flashPlayerInstalled.UninstallString
+    Start-Process -FilePath "msiexec.exe" -ArgumentList "/x $($uninstallString.TrimStart('/I')) /qn" -Wait
+
+    # Verify if uninstallation was successful
+    $flashPlayerInstalled = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*Adobe Flash Player*" }
+
+    if ($flashPlayerInstalled) {
+        Write-Host "Failed to uninstall Adobe Flash Player."
+    } else {
+        Write-Host "Adobe Flash Player was successfully uninstalled."
+    }
+} else {
+    Write-Host "Adobe Flash Player is not installed."
+}
